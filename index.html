@@ -632,11 +632,13 @@
         function sendKey(type, key) {
             var codes = {
                 ArrowLeft: 37, ArrowUp: 38, ArrowRight: 39, ArrowDown: 40,
-                ' ': 32
+                ' ': 32, z: 90, Z: 90
             };
             var event = new KeyboardEvent(type, {
-                key: key,
-                code: key === ' ' ? 'Space' : key,
+                key: key === 'Z' ? 'z' : key,
+                code: key === ' ' ? 'Space' : (key === 'z' || key === 'Z' ? 'KeyZ' : key),
+                keyCode: codes[key] || 0,
+                which: codes[key] || 0,
                 bubbles: true,
                 cancelable: true,
                 composed: true
@@ -649,7 +651,10 @@
             (canvas || document).dispatchEvent(event);
             if (canvas && canvas !== document) {
                 window.dispatchEvent(new KeyboardEvent(type, {
-                    key: key, code: key === ' ' ? 'Space' : key,
+                    key: key === 'Z' ? 'z' : key,
+                    code: key === ' ' ? 'Space' : (key === 'z' || key === 'Z' ? 'KeyZ' : key),
+                    keyCode: codes[key] || 0,
+                    which: codes[key] || 0,
                     bubbles: true, cancelable: true
                 }));
             }
