@@ -8,12 +8,12 @@ A web version of **Sonic CD**, originally made by Crush Arcade.
 
 ### Keyboard
 - **Arrow keys:** Move
-- **Z:** Jump
+- **Space:** Jump
 - **Enter:** Start / confirm
 
 ### Touch controls
 - On-screen directional buttons for movement
-- **JUMP** sends the **Z** key
+- **JUMP** sends the **Space** key
 - **START** sends **Enter**
 
 The START button is positioned beneath JUMP for easier use on touchscreens.
