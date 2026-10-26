@@ -21,7 +21,12 @@
     <meta charset="utf-8" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="theme-color" content="#0752c7" />
+    <meta name="description" content="Play Sonic CD in your browser, with touchscreen controls." />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./icon.svg" />
     <title>Sonic CD</title>
     <link rel="icon" href="https://cdn.jsdelivr.net/gh/UGBONTOP/ugs-soniccd@main/image_2026-02-28_164525280.png" type="image/png">
     <style>
@@ -769,5 +774,15 @@
 })();
 </script>
 
+    <script>
+    // Register the PWA service worker for installation and offline app-shell access.
+    if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('./sw.js').catch(function(error) {
+          console.warn('[PWA] Service worker registration failed:', error);
+        });
+      });
+    }
+    </script>
 </body>
 </html>
