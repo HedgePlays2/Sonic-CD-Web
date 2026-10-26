@@ -627,6 +627,7 @@
         document.body.classList.add('touch-device');
 
         var held = new Map();
+        var downAt = new Map();
         var canvas = document.getElementById('canvas');
 
         function sendKey(type, key) {
@@ -663,6 +664,7 @@
         function releaseAll() {
             held.forEach(function(key) { sendKey('keyup', key); });
             held.clear();
+            downAt.clear();
             document.querySelectorAll('#touchControls .pressed').forEach(function(btn) {
                 btn.classList.remove('pressed');
             });
@@ -675,6 +677,7 @@
                 try { btn.setPointerCapture(e.pointerId); } catch (err) {}
                 if (held.has(e.pointerId)) return;
                 held.set(e.pointerId, key);
+                downAt.set(e.pointerId, Date.now());
                 btn.classList.add('pressed');
                 if (canvas && canvas.focus) canvas.focus({ preventScroll: true });
                 sendKey('keydown', key);
@@ -682,11 +685,17 @@
             function release(e) {
                 if (!held.has(e.pointerId)) return;
                 var releasedKey = held.get(e.pointerId);
+                var pressedAt = downAt.get(e.pointerId) || Date.now();
                 held.delete(e.pointerId);
+                downAt.delete(e.pointerId);
                 btn.classList.remove('pressed');
-                // Keep a key held if another finger is still pressing that same control.
+                // Keep taps held long enough for the game's next input frame to detect them.
                 var stillHeld = Array.from(held.values()).indexOf(releasedKey) !== -1;
-                if (!stillHeld) sendKey('keyup', releasedKey);
+                if (!stillHeld) {
+                    var minimumHold = 120;
+                    var remaining = Math.max(0, minimumHold - (Date.now() - pressedAt));
+                    window.setTimeout(function() { sendKey('keyup', releasedKey); }, remaining);
+                }
             }
             btn.addEventListener('pointerup', release);
             btn.addEventListener('pointercancel', release);
