@@ -1,10 +1,10 @@
 /* Sonic CD PWA app-shell cache. The large game engine/data are hosted remotely. */
-const CACHE_NAME = 'sonic-cd-pwa-v1';
+const CACHE_NAME = 'sonic-cd-pwa-v2';
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
-  './soniccd.webp'
+  './soniccd.webp?v=2'
 ];
 
 self.addEventListener('install', event => {
