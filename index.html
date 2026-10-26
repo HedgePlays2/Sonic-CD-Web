@@ -340,7 +340,7 @@
             </div>
         </div>
         <div class="touch-cluster">
-            <button class="touch-btn touch-action" data-key=" " aria-label="Jump (Space)">JUMP</button>
+            <button class="touch-btn touch-action" data-key="x" aria-label="Jump (X)">JUMP</button>
         </div>
     </div>
 
@@ -632,11 +632,11 @@
         function sendKey(type, key) {
             var codes = {
                 ArrowLeft: 37, ArrowUp: 38, ArrowRight: 39, ArrowDown: 40,
-                ' ': 32, z: 90, Z: 90
+                ' ': 32, x: 88, X: 88, z: 90, Z: 90
             };
             var event = new KeyboardEvent(type, {
-                key: key === 'Z' ? 'z' : key,
-                code: key === ' ' ? 'Space' : (key === 'z' || key === 'Z' ? 'KeyZ' : key),
+                key: (key === 'X' || key === 'Z') ? key.toLowerCase() : key,
+                code: key === ' ' ? 'Space' : ((key === 'x' || key === 'X') ? 'KeyX' : ((key === 'z' || key === 'Z') ? 'KeyZ' : key)),
                 keyCode: codes[key] || 0,
                 which: codes[key] || 0,
                 bubbles: true,
@@ -651,8 +651,8 @@
             (canvas || document).dispatchEvent(event);
             if (canvas && canvas !== document) {
                 window.dispatchEvent(new KeyboardEvent(type, {
-                    key: key === 'Z' ? 'z' : key,
-                    code: key === ' ' ? 'Space' : (key === 'z' || key === 'Z' ? 'KeyZ' : key),
+                    key: (key === 'X' || key === 'Z') ? key.toLowerCase() : key,
+                    code: key === ' ' ? 'Space' : ((key === 'x' || key === 'X') ? 'KeyX' : ((key === 'z' || key === 'Z') ? 'KeyZ' : key)),
                     keyCode: codes[key] || 0,
                     which: codes[key] || 0,
                     bubbles: true, cancelable: true
@@ -713,7 +713,7 @@
   function addStartButton(){
     var controls=document.getElementById('touchControls');
     if(!controls || document.getElementById('touchStartEnter')) return;
-    var jumpButton=controls.querySelector('[data-key="z"]');
+    var jumpButton=controls.querySelector('[data-key="x"]');
     var cluster=jumpButton ? jumpButton.parentElement : null;
     if(!cluster){cluster=document.createElement('div');cluster.className='touch-cluster';controls.appendChild(cluster);}
     cluster.style.display='flex';
