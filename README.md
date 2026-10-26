@@ -1,1 +1,1 @@
-This is Sonic CD in the web orinaggly made by Crush Acrade
+This is Sonic CD in the web originally made by Crush Arcade
