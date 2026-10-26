@@ -11,7 +11,7 @@
   "theme_color": "#0752c7",
   "icons": [
     {
-      "src": "./soniccd.webp",
+      "src": "./soniccd.webp?v=2",
       "sizes": "any",
       "type": "image/webp",
       "purpose": "any maskable"
