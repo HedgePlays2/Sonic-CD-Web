@@ -11,9 +11,9 @@
   "theme_color": "#0752c7",
   "icons": [
     {
-      "src": "./icon.svg",
+      "src": "./soniccd.webp",
       "sizes": "any",
-      "type": "image/svg+xml",
+      "type": "image/webp",
       "purpose": "any maskable"
     }
   ]
