@@ -708,13 +708,14 @@
   function addStartButton(){
     var controls=document.getElementById('touchControls');
     if(!controls || document.getElementById('touchStartEnter')) return;
-    var jumpButton=controls.querySelector('[aria-label="Jump"]');
+    var jumpButton=controls.querySelector('[data-key="z"]');
     var cluster=jumpButton ? jumpButton.parentElement : null;
     if(!cluster){cluster=document.createElement('div');cluster.className='touch-cluster';controls.appendChild(cluster);}
     cluster.style.display='flex';
     cluster.style.flexDirection='column';
     cluster.style.alignItems='center';
     cluster.style.justifyContent='center';
+    cluster.style.marginLeft='auto';
     cluster.style.gap='12px';
     cluster.style.padding='4px';
     var btn=document.createElement('button');
