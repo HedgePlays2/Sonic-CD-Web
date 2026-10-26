@@ -708,11 +708,14 @@
   function addStartButton(){
     var controls=document.getElementById('touchControls');
     if(!controls || document.getElementById('touchStartEnter')) return;
-    var cluster=document.createElement('div');
-    cluster.className='touch-cluster';
+    var jumpButton=controls.querySelector('[aria-label="Jump"]');
+    var cluster=jumpButton ? jumpButton.parentElement : null;
+    if(!cluster){cluster=document.createElement('div');cluster.className='touch-cluster';controls.appendChild(cluster);}
     cluster.style.display='flex';
+    cluster.style.flexDirection='column';
     cluster.style.alignItems='center';
     cluster.style.justifyContent='center';
+    cluster.style.gap='12px';
     cluster.style.padding='4px';
     var btn=document.createElement('button');
     btn.id='touchStartEnter';
@@ -721,7 +724,6 @@
     btn.setAttribute('aria-label','Start or pause (Enter)');
     btn.title='Start / Enter';
     cluster.appendChild(btn);
-    controls.appendChild(cluster);
     var held=false;
     function send(type){
       var canvas=document.querySelector('canvas');
