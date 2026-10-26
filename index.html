@@ -210,6 +210,75 @@
             border-color: rgba(255,255,255,0.4);
         }
 
+
+        /* Touch controls for phones, tablets, and touchscreen Chromebooks */
+        #touchControls {
+            position: fixed;
+            inset: auto 0 max(18px, env(safe-area-inset-bottom)) 0;
+            z-index: 1002;
+            display: none;
+            align-items: flex-end;
+            justify-content: space-between;
+            padding: 0 clamp(14px, 4vw, 42px);
+            pointer-events: none;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+        }
+        body.touch-device #touchControls { display: flex; }
+        .touch-cluster { display: flex; align-items: center; gap: 10px; pointer-events: auto; }
+        .touch-dpad {
+            display: grid;
+            grid-template-columns: repeat(3, clamp(42px, 11vw, 62px));
+            grid-template-rows: repeat(3, clamp(42px, 11vw, 62px));
+            gap: 4px;
+        }
+        .touch-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(255,255,255,.72);
+            border-radius: 15px;
+            background: rgba(18, 35, 75, .68);
+            color: #fff;
+            font: 900 clamp(18px, 4vw, 27px)/1 'Inter', sans-serif;
+            text-shadow: 0 2px 3px #000;
+            box-shadow: 0 3px 0 rgba(0,0,0,.5), inset 0 0 12px rgba(80,160,255,.25);
+            min-width: 42px;
+            min-height: 42px;
+            padding: 0;
+            touch-action: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .touch-btn:active, .touch-btn.pressed {
+            background: rgba(0, 125, 255, .88);
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 rgba(0,0,0,.5), inset 0 0 12px rgba(255,255,255,.2);
+        }
+        .touch-up { grid-column: 2; grid-row: 1; }
+        .touch-left { grid-column: 1; grid-row: 2; }
+        .touch-down { grid-column: 2; grid-row: 2; }
+        .touch-right { grid-column: 3; grid-row: 2; }
+        .touch-action {
+            width: clamp(66px, 16vw, 88px);
+            height: clamp(66px, 16vw, 88px);
+            border-radius: 50%;
+            background: rgba(220, 45, 35, .78);
+            border-color: rgba(255,255,255,.85);
+            font-size: clamp(13px, 3vw, 17px);
+            letter-spacing: .5px;
+        }
+        @media (max-width: 520px) {
+            #touchControls { padding-left: 10px; padding-right: 10px; }
+            .touch-cluster { gap: 6px; }
+            .touch-dpad { gap: 3px; }
+        }
+        @media (orientation: landscape) and (max-height: 500px) {
+            #touchControls { bottom: max(8px, env(safe-area-inset-bottom)); }
+            .touch-dpad { grid-template-columns: repeat(3, 42px); grid-template-rows: repeat(3, 42px); }
+            .touch-action { width: 58px; height: 58px; }
+        }
+
         #fpsInfo {
             position: fixed;
             bottom: 8px; right: 10px;
@@ -258,6 +327,21 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
             Fullscreen
         </button>
+    </div>
+
+
+    <div id="touchControls" aria-label="Touch controls">
+        <div class="touch-cluster">
+            <div class="touch-dpad" aria-label="Movement">
+                <button class="touch-btn touch-up" data-key="ArrowUp" aria-label="Up">▲</button>
+                <button class="touch-btn touch-left" data-key="ArrowLeft" aria-label="Left">◀</button>
+                <button class="touch-btn touch-down" data-key="ArrowDown" aria-label="Down">▼</button>
+                <button class="touch-btn touch-right" data-key="ArrowRight" aria-label="Right">▶</button>
+            </div>
+        </div>
+        <div class="touch-cluster">
+            <button class="touch-btn touch-action" data-key=" " aria-label="Jump">JUMP</button>
+        </div>
     </div>
 
     <div id="fpsInfo">detecting refresh rate...</div>
@@ -533,6 +617,84 @@
 
         Module.setStatus('Downloading...');
     </script>
+
+    <script>
+    (function installSonicTouchControls() {
+        var touchDevice = ('ontouchstart' in window) ||
+            (navigator.maxTouchPoints && navigator.maxTouchPoints > 0) ||
+            (window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+        if (!touchDevice) return;
+        document.body.classList.add('touch-device');
+
+        var held = new Map();
+        var canvas = document.getElementById('canvas');
+
+        function sendKey(type, key) {
+            var codes = {
+                ArrowLeft: 37, ArrowUp: 38, ArrowRight: 39, ArrowDown: 40,
+                ' ': 32
+            };
+            var event = new KeyboardEvent(type, {
+                key: key,
+                code: key === ' ' ? 'Space' : key,
+                bubbles: true,
+                cancelable: true,
+                composed: true
+            });
+            // Some older game builds read keyCode instead of key.
+            try {
+                Object.defineProperty(event, 'keyCode', { get: function() { return codes[key] || 0; } });
+                Object.defineProperty(event, 'which', { get: function() { return codes[key] || 0; } });
+            } catch (e) {}
+            (canvas || document).dispatchEvent(event);
+            if (canvas && canvas !== document) {
+                window.dispatchEvent(new KeyboardEvent(type, {
+                    key: key, code: key === ' ' ? 'Space' : key,
+                    bubbles: true, cancelable: true
+                }));
+            }
+        }
+
+        function releaseAll() {
+            held.forEach(function(key) { sendKey('keyup', key); });
+            held.clear();
+            document.querySelectorAll('#touchControls .pressed').forEach(function(btn) {
+                btn.classList.remove('pressed');
+            });
+        }
+
+        document.querySelectorAll('#touchControls [data-key]').forEach(function(btn) {
+            var key = btn.getAttribute('data-key');
+            btn.addEventListener('pointerdown', function(e) {
+                e.preventDefault();
+                try { btn.setPointerCapture(e.pointerId); } catch (err) {}
+                if (held.has(e.pointerId)) return;
+                held.set(e.pointerId, key);
+                btn.classList.add('pressed');
+                if (canvas && canvas.focus) canvas.focus({ preventScroll: true });
+                sendKey('keydown', key);
+            });
+            function release(e) {
+                if (!held.has(e.pointerId)) return;
+                var releasedKey = held.get(e.pointerId);
+                held.delete(e.pointerId);
+                btn.classList.remove('pressed');
+                // Keep a key held if another finger is still pressing that same control.
+                var stillHeld = Array.from(held.values()).indexOf(releasedKey) !== -1;
+                if (!stillHeld) sendKey('keyup', releasedKey);
+            }
+            btn.addEventListener('pointerup', release);
+            btn.addEventListener('pointercancel', release);
+            btn.addEventListener('lostpointercapture', release);
+            btn.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+        });
+        window.addEventListener('blur', releaseAll);
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) releaseAll();
+        });
+    })();
+    </script>
+
     <script async type="text/javascript" src="https://cdn.jsdelivr.net/gh/UGBONTOP/ugs-soniccd@main/js1/index.js"></script>
 
 </body>
