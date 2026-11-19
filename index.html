@@ -229,7 +229,8 @@
             -webkit-user-select: none;
             touch-action: none;
         }
-        body.touch-device #touchControls { display: flex; }
+        body.touch-device:not(.touch-controls-disabled) #touchControls { display: flex; }
+        body.touch-controls-disabled #touchControls { display: none !important; }
         .touch-cluster { display: flex; align-items: center; gap: 10px; pointer-events: auto; }
         .touch-dpad {
             display: grid;
@@ -331,6 +332,9 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
             Fullscreen
         </button>
+        <button id="touch-toggle-button" class="game-btn" type="button" aria-pressed="true">
+            Touch Controls: ON
+        </button>
     </div>
 
 
@@ -381,6 +385,28 @@
                 document.exitFullscreen();
             }
         };
+
+        // Let players hide the on-screen controls; remember their choice across reloads.
+        (function setupTouchControlsToggle() {
+            var button = $('touch-toggle-button');
+            if (!button) return;
+            var enabled = true;
+            try {
+                var saved = localStorage.getItem('sonic-cd-touch-controls');
+                if (saved === 'off') enabled = false;
+            } catch (e) {}
+            function apply() {
+                document.body.classList.toggle('touch-controls-disabled', !enabled);
+                button.textContent = 'Touch Controls: ' + (enabled ? 'ON' : 'OFF');
+                button.setAttribute('aria-pressed', String(enabled));
+            }
+            button.addEventListener('click', function() {
+                enabled = !enabled;
+                apply();
+                try { localStorage.setItem('sonic-cd-touch-controls', enabled ? 'on' : 'off'); } catch (e) {}
+            });
+            apply();
+        })();
 
         (function() {
             var fpsInfoEl = $('fpsInfo');
